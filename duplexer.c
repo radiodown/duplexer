@@ -3,10 +3,7 @@
 #include "basic.h"
 #include "logger.h"
 #include "master.h"
-
-int mode_slave(context* c){
-    return 0;
-}
+#include "slave.h"
 
 int main(int argc, char* argv[]){
     context c;

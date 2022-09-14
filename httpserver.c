@@ -44,7 +44,7 @@ void getFileName(char* msg, char* filename) {
     sscanf(msg, "GET %s HTTP/", filename);
 }
 
-httpRequest parseRequest(char *msg){
+httpRequest parseRequest(char *msg, int* pilot){
 
     httpRequest ret;
     char filename[128] = {0,};
@@ -59,11 +59,13 @@ httpRequest parseRequest(char *msg){
         strcpy(ret.filename,"400");
     } 
     else if(strcmp(filename, "/duplexer/myplane") == 0) {
+        *pilot = 1;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"Your Plane");
     }
     else if(strcmp(filename, "/duplexer/yourplane") == 0) {
+        *pilot = 0;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"My Plane");
@@ -115,7 +117,7 @@ int printHeader(int fd, int returncode, int size)
     return 0;
 }
 
-int http_server(int port) {
+int http_server(int port, int* pilot) {
     int conn_s;                  //  connection socket
     struct sockaddr_in servaddr; //  socket address structure
     char block[1024] = {0,};
@@ -155,7 +157,7 @@ int http_server(int port) {
             return 1;
         }
         header = getMessage(conn_s, block);
-        details = parseRequest(header);
+        details = parseRequest(header, pilot);
         
         headersize = printHeader(conn_s, details.returncode, strlen(details.filename));
         pagesize = printFile(conn_s, details.filename);

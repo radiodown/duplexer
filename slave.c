@@ -1,37 +1,43 @@
 #include "master.h"
 #include "syshead.h"
 #include "logger.h"
+#include "httpserver.h"
 #include "ping.h"
 
-// int check_vip(){
+int port;
 
-// }
-
-// int install_vip(){
-
-// }
-
-// int waiting_slave(){
-
-// }
-
+void* t_function(void* data) {
+    http_server(port, (int*)data);
+    return NULL;
+}
 
 /* HA Connected */
-//  GW 연결           DUP 연결         HA 연결
-//   실패               실패            성공      VIP다운, Your plane
-//   실패               성공            성공      VIP다운, Your plane   
-//   성공               실패            성공      VIP업, My Plane, Dup점검 로그
-//   성공               성공            성공      VIP업, My Plane
+// 마스터 설정을 따라감
 
 /* HA Disconnected */
 //  GW 연결           DUP 연결         HA 연결
 //   실패               실패            싪패      VIP다운
 //   실패               성공            싪패      VIP다운
 //   성공               실패            싪패      VIP업, Dup점검 로그
-//   성공               성공            싪패      VIP업
+//   성공               성공            싪패      VIP다운
 
-void mode_master(context* c){
+void mode_slave(context* c){
     logger(LOG_INFO, "Entering Master Mode");
+
+    pthread_t pthread;
+    int thr_id;
+    int result;
+    port = c->o.direct_port;
+    /* 1: Master's Plane, 0: Slave's Plane */
+    int pilot = 0;
+    
+    if(c->o.direct == 1){
+        thr_id = pthread_create(&pthread, NULL, t_function, (void*)&pilot);
+        if(thr_id < 0) {
+          perror("pthread0 create error");
+          exit(EXIT_FAILURE);
+        }
+    }
 
     while(1){
         /* Checking HA */
@@ -129,4 +135,6 @@ void mode_master(context* c){
 
         sleep(1);
     }
+
+    pthread_join(pthread, NULL);
 }
