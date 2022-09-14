@@ -3,17 +3,17 @@
 #include "logger.h"
 #include "ping.h"
 
-int check_vip(){
+// int check_vip(){
 
-}
+// }
 
-int install_vip(){
+// int install_vip(){
 
-}
+// }
 
-int waiting_slave(){
+// int waiting_slave(){
 
-}
+// }
 
 
 /* HA Connected */
@@ -30,7 +30,7 @@ int waiting_slave(){
 //   성공               실패            싪패      VIP업, Dup점검 로그
 //   성공               성공            싪패      VIP업
 
-int mode_master(context* c){
+void mode_master(context* c){
     logger(LOG_INFO, "Entering Master Mode");
     ping_main("10.0.1.50", 3);
 
@@ -130,5 +130,4 @@ int mode_master(context* c){
 
         sleep(1);
     }
-    return 0;
 }

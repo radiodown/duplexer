@@ -29,9 +29,15 @@
 
 #include <signal.h>
 
+#include <ifaddrs.h>
+
 #include <sys/types.h>
 
 #include <sys/socket.h>
+
+#include <sys/stat.h>   
+
+#include <net/if.h>
 
 #include <netinet/ip.h>
 
@@ -42,7 +48,5 @@
 #include <netinet/in_systm.h>
 
 #include <arpa/inet.h>
-
-
 
 #endif

@@ -255,9 +255,11 @@ int show_options(struct options* o){
             logger(LOG_DEBUG,"   duplex IP  :%s", o->l[i].dup);
         }
         logger(LOG_DEBUG,"HA     :%s",o->direct == 1 ? "on" : "off" );
-        logger(LOG_DEBUG,"HA IP  :%s",o->direct_ip);
-        logger(LOG_DEBUG,"HA IF  :%s",o->direct_interface);
-        logger(LOG_DEBUG,"HA PORT:%d",o->direct_port);
+        if(o->direct){
+            logger(LOG_DEBUG,"HA IP  :%s",o->direct_ip);
+            logger(LOG_DEBUG,"HA IF  :%s",o->direct_interface);
+            logger(LOG_DEBUG,"HA PORT:%d",o->direct_port);
+        }
         logger(LOG_DEBUG,"log    :%s",o->log_file);
         logger(LOG_DEBUG,"Syslog :%s",o->syslog ==1? "on" : "off" );
         logger(LOG_DEBUG,"Log lvl:%d",o->log_level);

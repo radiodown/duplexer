@@ -8,9 +8,6 @@ int mode_slave(context* c){
     return 0;
 }
 
-
-
-
 int main(int argc, char* argv[]){
     context c;
 

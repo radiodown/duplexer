@@ -3,6 +3,6 @@
 
 #include "duplexer.h"
 
-int mode_master(context* c);
+void mode_master(context* c);
 
 #endif
