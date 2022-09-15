@@ -60,10 +60,14 @@ void mode_slave(context* c){
                 }
                 if (check_alive == 0){
                     logger(LOG_DEBUG, "Cannot Connect Opponent's Duplexer, Change Direct off.");
+                    c->s[0].ha_status = 1;
+                    c->s[1].ha_status = 1;
                 }
 
                 if (check_alive == 1){
-                    logger(LOG_DEBUG, "Cannot Connect Opponent's Duplexer, Change Direct on.");
+                    logger(LOG_DEBUG, "Connected Opponent's Duplexer, Change Direct on.");
+                    c->s[0].ha_status = 0;
+                    c->s[1].ha_status = 0;
                 }
             }
         }
@@ -90,7 +94,6 @@ void mode_slave(context* c){
 
         
         for (int i = 0; i < c->o.layer_count; i++){
-            logger(LOG_DEBUG, "%d, %d", c->s[i].gw_status, c->s[i].dup_status);
             /* HA  Disonnected */
             if(c->s[i].ha_status){
                 logger(LOG_DEBUG, "HA DISCONNECTED");

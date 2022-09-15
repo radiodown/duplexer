@@ -14,7 +14,6 @@
 /* Gives the timeout delay for receiving packets in seconds */
 #define RECV_TIMEOUT 1
 
-#define APPLE
 
 /* APPLE */
 #ifdef APPLE

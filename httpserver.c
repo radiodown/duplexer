@@ -12,20 +12,20 @@ typedef struct {
 } httpRequest;
 
 
-char *header200 = "HTTP/1.0 200 OK\nServer: Duplexer\nContent-Type: application/json\nContent-Length: %d\n\n";
-char *header400 = "HTTP/1.0 400 Bad Request\nServer: Duplexer\nContent-Type: application/json\nContent-Length: %d\n\n";
-char *header404 = "HTTP/1.0 404 Not Found\nServer: Duplexer\nContent-Type: application/json\nContent-Length: %d\n\n";
+char *header200 = "HTTP/1.0 200 OK\r\nServer: Duplexer\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n";
+char *header400 = "HTTP/1.0 400 Bad Request\r\nServer: Duplexer\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n";
+char *header404 = "HTTP/1.0 404 Not Found\r\nServer: Duplexer\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n";
 
-void getMessage(int fd, char* block) {
+int getMessage(int fd, char* block) {
     FILE *sstream;
     char tmp[128] = {0,};
     CLEAR(*block);
     
     if( (sstream = fdopen(fd, "r")) == NULL) {
-        fprintf(stderr, "Error opening file descriptor in getMessage()\n");
-        exit(EXIT_FAILURE);
+        logger(LOG_DEBUG, "Error opening file descriptor in getMessage()\n");
+        return 1;
     }
-    
+
     size_t size = 1;
     int end;
 
@@ -35,6 +35,7 @@ void getMessage(int fd, char* block) {
         }
         strcat(block, tmp);
     }
+    return 0;
 }
 
 int sendMessage(int fd, char *msg) {
@@ -114,13 +115,13 @@ int printHeader(int fd, int returncode, int size)
         break;
         
         case 400:
-        sprintf(temp, header200, size);
+        sprintf(temp, header400, size);
         sendMessage(fd, temp);
         return strlen(temp);
         break;
         
         case 404:
-        sprintf(temp, header200, size);
+        sprintf(temp, header404, size);
         sendMessage(fd, temp);
         return strlen(temp);
         break;
@@ -128,13 +129,24 @@ int printHeader(int fd, int returncode, int size)
     return 0;
 }
 
+void cleanup(int sig) {
+    if (close(list_s) < 0) {
+        exit(EXIT_FAILURE);
+    }
+    exit(EXIT_SUCCESS);
+}
+
 int http_server(int port, int* pilot) {
     int conn_s;                  //  connection socket
     struct sockaddr_in servaddr; //  socket address structure
     char block[1024] = {0,};
+    int looper = 0;
+
+    (void) signal(SIGINT, cleanup);
+    (void) signal(SIGHUP, cleanup);
     
     if ((list_s = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-        fprintf(stderr, "Error creating listening socket.\n");
+        logger(LOG_DEBUG, "Error creating listening socket.");
         return 1;
     }
     
@@ -143,16 +155,34 @@ int http_server(int port, int* pilot) {
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port        = htons(port);
 
-    if (bind(list_s, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0 ) {
-        fprintf(stderr, "Error calling bind()\n");
-        return 1;
+
+
+    while(1){
+        if (bind(list_s, (struct sockaddr *) &servaddr, sizeof(servaddr)) < 0 ) {
+            logger(LOG_INFO, "Error calling bind()");
+            if(looper > 100){
+                return 1;
+            }
+            sleep(1);
+        }else{
+            break;
+        }
+        looper++;
     }
     
-    if( (listen(list_s, 10)) == -1)
-    {
-        fprintf(stderr, "Error Listening\n");
-        return 1;
-    } 
+    looper =0 ;
+    while(1){
+        if((listen(list_s, 10)) == -1)
+        {
+            logger(LOG_INFO, "Error Listening");
+            if(looper > 100){
+                return 1;
+            }
+            sleep(1);
+        } else{
+            break;
+        }
+    }
 
     unsigned int addr_size = sizeof(servaddr);
     
@@ -164,10 +194,13 @@ int http_server(int port, int* pilot) {
     {
         conn_s = accept(list_s, (struct sockaddr *)&servaddr, &addr_size);
         if(conn_s == -1){
-            fprintf(stderr,"Error accepting connection \n");
-            return 1;
+            logger(LOG_DEBUG,"Error accepting connection \n");
+            continue;
         }
-        getMessage(conn_s, block);
+        if(getMessage(conn_s, block)){
+            close(conn_s);
+            continue;
+        }
         details = parseRequest(block, pilot);
         
         headersize = printHeader(conn_s, details.returncode, strlen(details.filename));

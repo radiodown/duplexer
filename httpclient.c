@@ -4,7 +4,81 @@
 #include "basic.h"
 
 
-int send_http(int port, char* host, char* url, char* response) {
+// int send_http(int port, char* host, char* url, char* response2) {
+//  /* first what are we going to send and where are we going to send it? */
+//     int portno =        port;
+//     char *message_fmt = "GET %s HTTP/1.0\r\n\r\n";
+//     struct hostent *server;
+//     struct sockaddr_in serv_addr;
+//     int sockfd, bytes, sent, received, total;
+//     char message[1024]=  {0,};
+//     char response[1024]=  {0,};
+
+
+//     /* fill in the parameters */
+//     sprintf(message,message_fmt, url);
+//     printf("Request:\n%s\n",message);
+
+//     /* create the socket */
+//     sockfd = socket(AF_INET, SOCK_STREAM, 0);
+//     if (sockfd < 0) error("ERROR opening socket");
+
+//     /* lookup the ip address */
+//     server = gethostbyname(host);
+//     if (server == NULL) error("ERROR, no such host");
+
+//     /* fill in the structure */
+//     memset(&serv_addr,0,sizeof(serv_addr));
+//     serv_addr.sin_family = AF_INET;
+//     serv_addr.sin_port = htons(portno);
+//     memcpy(&serv_addr.sin_addr.s_addr,server->h_addr,server->h_length);
+
+//     /* connect the socket */
+//     if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
+//         error("ERROR connecting");
+
+//     /* send the request */
+//     total = strlen(message);
+//     sent = 0;
+//     do {
+//         bytes = write(sockfd,message+sent,total-sent);
+//         if (bytes < 0)
+//             error("ERROR writing message to socket");
+//         if (bytes == 0)
+//             break;
+//         sent+=bytes;
+//     } while (sent < total);
+
+//     /* receive the response */
+//     total = sizeof(response)-1;
+//     received = 0;
+//     do {
+//         bytes = read(sockfd,response+received,total-received);
+//         if (bytes < 0)
+//             error("ERROR reading response from socket");
+//         if (bytes == 0)
+//             break;
+//         received+=bytes;
+//     } while (received < total);
+
+//     /*
+//      * if the number of received bytes is the total size of the
+//      * array then we have run out of space to store the response
+//      * and it hasn't all arrived yet - so that's a bad thing
+//      */
+//     if (received == total)
+//         error("ERROR storing complete response from socket");
+
+//     /* close the socket */
+//     close(sockfd);
+//     strcpy(response2, response);
+//     /* process response */
+//     printf("Response:\n%s\n",response);
+    
+//     return 0;
+// }
+
+int send_http(int port, char* host, char* url) {
     
     char *message_fmt = "GET %s HTTP/1.0\r\n\r\n";
 
@@ -16,6 +90,7 @@ int send_http(int port, char* host, char* url, char* response) {
     socklen_t lon;
     int sockfd, bytes, sent, received, total, res, opt;
     char message[512] = {0,};
+    char response[512]=  {0,};
 
 
     /* fill in the parameters */
@@ -150,7 +225,16 @@ int send_http(int port, char* host, char* url, char* response) {
     close(sockfd);
 
     /* process response */
-    logger(LOG_INFO, "[ SLAVE  ]: %s", response);
+    char *ptr = strtok(response, "/r/n");
+    int i = 0;
 
+    while (ptr != NULL){
+        if(i == 5){
+            logger(LOG_DEBUG, "  [ SLAVE  ]: %s", ptr);
+            break;
+        }
+        ptr = strtok(NULL, "\r\n");
+        i++;
+    }
     return 0;
 }

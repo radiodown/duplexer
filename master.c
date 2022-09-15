@@ -38,7 +38,6 @@
 
 void mode_master(context* c){
     int alive_count = 0;
-    char response[1024] = {0,};
 
     logger(LOG_INFO, "Entering Master Mode");
 
@@ -54,9 +53,8 @@ void mode_master(context* c){
                 c->s[0].ha_status = 0;
                 c->s[1].ha_status = 0;
                 if(alive_count < 3){
-                    CLEAR(*response);
                     logger(LOG_DEBUG,"[ MASTER ]: is Alive?");
-                    if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_ALIVE ,response)){
+                    if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_ALIVE)){
                         logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, waiting 3s.");
                         sleep(3);
                         alive_count++;
