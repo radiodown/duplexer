@@ -27,6 +27,7 @@ void mode_slave(context* c){
 
     pthread_t pthread;
     int thr_id, i, result;
+    int vip_status = 0; // 1: up, 0: down
     
 
     port = c->o.direct_port;

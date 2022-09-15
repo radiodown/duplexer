@@ -125,19 +125,24 @@ int parse_config(struct options* o, char* p[]){
             o->l[o->layer_count].vip = malloc(strlen(p[3])+1);
             CLEAR(*o->l[o->layer_count].vip);
             strcpy(o->l[o->layer_count].vip, p[3]);
+        }
+        if(strcmp(p[4],"netmask") == 0){
+            o->l[o->layer_count].netmask = malloc(strlen(p[5])+1);
+            CLEAR(*o->l[o->layer_count].netmask);
+            strcpy(o->l[o->layer_count].netmask, p[5]);
         } 
-        if(strcmp(p[4],"if") == 0){
-            o->l[o->layer_count].interface = malloc(strlen(p[5])+1);
+        if(strcmp(p[6],"if") == 0){
+            o->l[o->layer_count].interface = malloc(strlen(p[7])+1);
             CLEAR(*o->l[o->layer_count].interface);
-            strcpy(o->l[o->layer_count].interface, p[5]);
+            strcpy(o->l[o->layer_count].interface, p[7]);
         } 
-        if(strcmp(p[6],"count") == 0){
-            o->l[o->layer_count].count = atoi(p[7]);
+        if(strcmp(p[8],"count") == 0){
+            o->l[o->layer_count].count = atoi(p[9]);
         } 
-        if(strcmp(p[8],"dup") == 0){
-            o->l[o->layer_count].dup = malloc(strlen(p[9]) + 1);
+        if(strcmp(p[10],"dup") == 0){
+            o->l[o->layer_count].dup = malloc(strlen(p[11]) + 1);
             CLEAR(*o->l[o->layer_count].dup);
-            strcpy(o->l[o->layer_count].dup, p[9]);
+            strcpy(o->l[o->layer_count].dup, p[11]);
         }
         o->layer_count++;
         
@@ -251,6 +256,7 @@ int show_options(struct options* o){
             logger(LOG_DEBUG,"layer [%d]", i);
             logger(LOG_DEBUG,"   Gateway    :%s", o->l[i].gateway);
             logger(LOG_DEBUG,"   Virtual IP :%s", o->l[i].vip);
+            logger(LOG_DEBUG,"   Netmask    :%s", o->l[i].netmask);
             logger(LOG_DEBUG,"   interface  :%s", o->l[i].interface);
             logger(LOG_DEBUG,"   Fail Count :%d", o->l[i].count);
             logger(LOG_DEBUG,"   duplex IP  :%s", o->l[i].dup);

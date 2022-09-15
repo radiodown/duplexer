@@ -13,6 +13,8 @@ struct layer {
     char* gateway; 
     /* To Announce Virtual IP */
     char* vip;
+    /* Vip's netmask */
+    char* netmask;
     /* Interface*/
     char* interface;
     /* Fail count */
