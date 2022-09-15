@@ -17,10 +17,10 @@ void* t_function(void* data) {
 
 /* HA Disconnected */
 //  GW 연결           DUP 연결         HA 연결
-//   실패               실패            싪패      VIP다운
-//   실패               성공            싪패      VIP다운
-//   성공               실패            싪패      VIP업, Dup점검 로그
-//   성공               성공            싪패      VIP다운
+//   실패               실패            실패      VIP다운
+//   실패               성공            실패      VIP다운
+//   성공               실패            실패      VIP업, Dup점검 로그
+//   성공               성공            실패      VIP다운
 
 void mode_slave(context* c){
     logger(LOG_INFO, "Entering Slave Mode");
@@ -106,7 +106,7 @@ void mode_slave(context* c){
                 }
                 /* GW, DUP Success */
                 else if (c->s[i].gw_status == 0 && c->s[i].dup_status == 0) {
-                    /* VIP up */
+                    /* VIP down */
                     logger(LOG_DEBUG, "GW, DUP Success");
 
                 }

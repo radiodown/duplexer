@@ -10,19 +10,6 @@
 #define DUPLEXER_MYPLANE "/duplexer/myplane"
 #define DUPLEXER_YOURPLANE "/duplexer/yourplane"
 
-// int check_vip(){
-
-// }
-
-// int install_vip(){
-
-// }
-
-// int waiting_slave(){
-
-// }
-
-
 /* HA Connected */
 //  GW 연결           DUP 연결         HA 연결
 //   실패               실패            성공      VIP다운, Your plane
