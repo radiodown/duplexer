@@ -41,6 +41,8 @@
 
 #include <sys/stat.h>   
 
+#include <sys/ioctl.h>
+
 #include <net/if.h>
 
 #include <netinet/ip.h>

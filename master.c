@@ -65,7 +65,6 @@ void mode_master(context* c){
                 }else if(alive_count == 3){
                     logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, Change Direct off.");
                     alive_count++;
-
                     c->s[0].ha_status = 1;
                     c->s[1].ha_status = 1;
                 }else{
@@ -142,8 +141,7 @@ void mode_master(context* c){
                 }
                 else {
                     /* GW Fail, Dup Success */
-                    if (c->s[i].gw_status)
-                    {
+                    if (c->s[i].gw_status) {
                         /* VIP down */
                         logger(LOG_DEBUG, "GW Failed, DUP Success");
                     }

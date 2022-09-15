@@ -62,13 +62,15 @@ httpRequest parseRequest(char *msg, int* pilot){
         strcpy(ret.filename,"400");
     } 
     else if(strcmp(filename, "/duplexer/alive") == 0) {
-        logger(LOG_DEBUG,"%d",check_alive);
+
         check_alive=1;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"I'm Alive");
     }
     else if(strcmp(filename, "/duplexer/myplane") == 0) {
+        logger(LOG_DEBUG,"[ Master ]: My Plane");
+        logger(LOG_DEBUG,"[ Slave  ]: Your Plane");
         *pilot = 1;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
@@ -76,6 +78,8 @@ httpRequest parseRequest(char *msg, int* pilot){
         logger(LOG_DEBUG,"%d",ret.filename);
     }
     else if(strcmp(filename, "/duplexer/yourplane") == 0) {
+        logger(LOG_DEBUG,"[ Master ]: Your Plane");
+        logger(LOG_DEBUG,"[ Slave  ]: My Plane");
         *pilot = 2;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
