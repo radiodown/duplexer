@@ -67,7 +67,7 @@ unsigned short checksum(void *b, int len)
 /* Performs a DNS lookup */
 char *dns_lookup(char *addr_host, struct sockaddr_in *addr_con)
 {
-    logger(LOG_DEBUG,"Resolving DNS..");
+    //logger(LOG_DEBUG,"Resolving DNS..");
     struct hostent *host_entity;
     char *ip=(char*)malloc(NI_MAXHOST*sizeof(char));
     int i;
@@ -102,7 +102,7 @@ char* reverse_dns_lookup(char *ip_addr)
     if (getnameinfo((struct sockaddr *) &temp_addr, len, buf,
                     sizeof(buf), NULL, 0, NI_NAMEREQD))
     {
-        logger(LOG_DEBUG,"Could not resolve reverse lookup of hostname");
+        //logger(LOG_DEBUG,"Could not resolve reverse lookup of hostname");
         return NULL;
     }
     ret_buf = (char*)malloc((strlen(buf) +1)*sizeof(char) );
@@ -113,7 +113,7 @@ char* reverse_dns_lookup(char *ip_addr)
 /* make a ping request */
 int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, char *ping_ip, char *rev_host , int count)
 {
-    int ttl_val=64, msg_count=0, i, flag=1, msg_received_count=0;
+    int ttl_val=64, msg_count=0, j, flag=1, msg_received_count=0;
     unsigned int  addr_len;
     struct ping_pkt pckt;
     struct sockaddr_in r_addr;
@@ -137,7 +137,7 @@ int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, ch
         logger(LOG_INFO,"Setting socket options to TTL failed!");
         return 1;
     } else {
-        logger(LOG_DEBUG,"Socket set to TTL..");
+        //logger(LOG_DEBUG,"Socket set to TTL..");
     }
  
      /* setting timeout of recv setting */
@@ -154,10 +154,10 @@ int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, ch
         pckt.hdr.type = ICMP_ECHO;
         pckt.hdr.un.echo.id = getpid();
          
-        for ( i = 0; i < sizeof(pckt.msg)-1; i++ )
-            pckt.msg[i] = i+'0';
+        for ( j = 0; j < sizeof(pckt.msg)-1; j++ )
+            pckt.msg[j] = j+'0';
          
-        pckt.msg[i] = 0;
+        pckt.msg[j] = 0;
         pckt.hdr.un.echo.sequence = msg_count++;
         pckt.hdr.checksum = checksum(&pckt, sizeof(pckt));
  
@@ -177,7 +177,7 @@ int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, ch
         addr_len=sizeof(r_addr);
  
         if ( recvfrom(ping_sockfd, &pckt, sizeof(pckt), 0, (struct sockaddr*)&r_addr, &addr_len) <= 0 && msg_count>1) {
-            printf("Packet receive failed!");
+            logger(LOG_DEBUG,"Packet receive failed!");
         }else{
             clock_gettime(CLOCK_MONOTONIC, &time_end);
              
@@ -187,20 +187,27 @@ int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, ch
              /* if packet was not sent, don't receive */
             if(flag){
                 if(!(pckt.hdr.type ==69 && pckt.hdr.code==0)){
-                    logger(LOG_INFO,"Error..Packet received with ICMP type %d code %d", pckt.hdr.type, pckt.hdr.code);
+                    logger(LOG_DEBUG,"Error..Packet received with ICMP type %d code %d [%d]", pckt.hdr.type, pckt.hdr.code, i);
                 }else{
                     logger(LOG_DEBUG,"%d bytes from %s (h: %s)(%s) msg_seq=%d ttl=%d rtt = %Lf ms.", PING_PKT_S, ping_dom, rev_host, ping_ip, msg_count, ttl_val, rtt_msec);
                     msg_received_count++;
-                    return 0;
+                    break;
                 }
             }
         }   
+        usleep(500);
     }
 
     clock_gettime(CLOCK_MONOTONIC, &tfe);
     double timeElapsed = ((double)(tfe.tv_nsec - tfs.tv_nsec))/1000000.0;
     total_msec = (tfe.tv_sec-tfs.tv_sec)*1000.0 + timeElapsed;
-    logger(LOG_DEBUG,"%d packets sent, %d packets received, %f percent packet loss. Total time: %Lf ms.",msg_count, msg_received_count, ((msg_count - msg_received_count)/msg_count) * 100.0, total_msec);
+    //logger(LOG_DEBUG,"[%s] %d packets sent, %d packets received, %f percent packet loss. Total time: %Lf ms.\n",ping_ip, msg_count, msg_received_count, ((msg_count - msg_received_count)/msg_count) * 100.0, total_msec);
+    usleep(500);
+
+    if(msg_received_count>0){
+        return 0;
+    }
+    logger(LOG_INFO,"[%s] %d packets sent, %d packets received, %f percent packet loss. Total time: %Lf ms.",ping_ip, msg_count, msg_received_count, ((msg_count - msg_received_count)/msg_count) * 100.0, total_msec);
     return 1;
 }
 
@@ -219,7 +226,7 @@ int ping_main(char *address, int count) {
  
     reverse_hostname = reverse_dns_lookup(ip_addr);
     logger(LOG_DEBUG, "Trying to connect to '%s' IP: %s", address, ip_addr);
-    logger(LOG_DEBUG, "Reverse Lookup domain: %s", reverse_hostname);
+    //logger(LOG_DEBUG, "Reverse Lookup domain: %s", reverse_hostname);
 
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if(sockfd<0){

@@ -2,6 +2,12 @@
 #include "syshead.h"
 #include "logger.h"
 #include "ping.h"
+#include "httpclient.h"
+#include "basic.h"
+
+#define DUPLEXER_ALIVE "/duplexer/alive"
+#define DUPLEXER_MYPLANE "/duplexer/myplane"
+#define DUPLEXER_YOURPLANE "/duplexer/yourplane"
 
 // int check_vip(){
 
@@ -31,18 +37,43 @@
 //   성공               성공            싪패      VIP업
 
 void mode_master(context* c){
+    int alive_count = 0;
+    char response[1024] = {0,};
+
     logger(LOG_INFO, "Entering Master Mode");
 
     while(1){
         /* Checking HA */
         /* Using HA */
         if(c->o.direct == 1){
+            /* 0: success 1: fail */
             if(ping_main(c->o.direct_ip, 3)){
                 c->s[0].ha_status = 1;
                 c->s[1].ha_status = 1;
             }else {
                 c->s[0].ha_status = 0;
                 c->s[1].ha_status = 0;
+                if(alive_count < 3){
+                    CLEAR(*response);
+                    logger(LOG_DEBUG,"[ MASTER ]: is Alive?");
+                    if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_ALIVE ,response)){
+                        logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, waiting 3s.");
+                        sleep(3);
+                        alive_count++;
+                        continue;
+                    }else{
+                        alive_count = 0;
+                    }
+                }else if(alive_count == 3){
+                    logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, Change Direct off.");
+                    alive_count++;
+
+                    c->s[0].ha_status = 1;
+                    c->s[1].ha_status = 1;
+                }else{
+                    c->s[0].ha_status = 1;
+                    c->s[1].ha_status = 1;
+                } 
             }
         } 
         /* Not Using HA */
@@ -126,7 +157,7 @@ void mode_master(context* c){
                 }
             }
         }
-
+        alive_count = 0;
         sleep(1);
     }
 }

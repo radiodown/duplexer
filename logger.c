@@ -1,6 +1,8 @@
 #include "logger.h"
 #include "syshead.h"
 
+int log_level;
+
 void logger_(int level, const char* funcname, void* format, ...)
 {
 	char buf[1024] = { 0, };
@@ -8,7 +10,7 @@ void logger_(int level, const char* funcname, void* format, ...)
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
 
-	if ((level & LOG_LEVEL) == 0) {
+	if ((level & log_level) == 0) {
 		return ;
 	}
 

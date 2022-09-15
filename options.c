@@ -4,7 +4,7 @@
 #include "version.h"
 #include "options.h"
 
-/* To Count Layer configuration line */
+extern int log_level;
 
 void show_version(){
     logger(LOG_INFO, "%s", PACKAGE_STRING);
@@ -38,6 +38,7 @@ int add_config(char *p[], struct options* o){
 }
 
 void init_options(struct options* o){
+    log_level = 1;
     logger(LOG_DEBUG, "START INIT OPTIONS");
 
     o = malloc(sizeof(struct options));
@@ -45,7 +46,6 @@ void init_options(struct options* o){
          logger(LOG_DEBUG, "FAILED TO init");
     }
     CLEAR(*o);
-
     o->duplex = 0;
     o->layer_count = 0;
 
@@ -149,7 +149,7 @@ int parse_config(struct options* o, char* p[]){
            
             o->direct_ip = malloc(strlen(p[1])+1);
             CLEAR(*o->direct_ip);
-            strcpy(o->direct_ip, p[3]);
+            strcpy(o->direct_ip, p[1]);
             
             if(strcmp(p[2],"if") == 0){
                 o->direct_interface = malloc(strlen(p[3])+1);
@@ -172,6 +172,7 @@ int parse_config(struct options* o, char* p[]){
         }
     }else if(strcmp(p[0], "log-level") == 0 ){
         o->log_level = atoi(p[1]);
+        log_level = o->log_level;
     }else if(strcmp(p[0], "management") == 0 ){
         o->management_port = atoi(p[1]);
     }else{

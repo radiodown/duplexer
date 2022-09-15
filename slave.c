@@ -5,6 +5,7 @@
 #include "ping.h"
 
 int port;
+extern int check_alive;
 
 void* t_function(void* data) {
     http_server(port, (int*)data);
@@ -22,19 +23,20 @@ void* t_function(void* data) {
 //   성공               성공            싪패      VIP다운
 
 void mode_slave(context* c){
-    logger(LOG_INFO, "Entering Master Mode");
+    logger(LOG_INFO, "Entering Slave Mode");
 
     pthread_t pthread;
-    int thr_id;
-    int result;
+    int thr_id, i, result;
+    
+
     port = c->o.direct_port;
-    /* 1: Master's Plane, 0: Slave's Plane */
+    /* 1: Master's Plane, 2: Slave's Plane */
     int pilot = 0;
     
     if(c->o.direct == 1){
         thr_id = pthread_create(&pthread, NULL, t_function, (void*)&pilot);
         if(thr_id < 0) {
-          perror("pthread0 create error");
+          logger(LOG_INFO,"pthread0 create error");
           exit(EXIT_FAILURE);
         }
     }
@@ -49,14 +51,28 @@ void mode_slave(context* c){
             }else {
                 c->s[0].ha_status = 0;
                 c->s[1].ha_status = 0;
+                for( i = 0; i < 3 ; i ++){
+                    if(check_alive != 0){
+                        break;
+                    } else {
+                        sleep(2);
+                    }
+                }
+                if (check_alive == 0){
+                    logger(LOG_DEBUG, "Cannot Connect Opponent's Duplexer, Change Direct off.");
+                }
+
+                if (check_alive == 1){
+                    logger(LOG_DEBUG, "Cannot Connect Opponent's Duplexer, Change Direct on.");
+                }
             }
-        } 
+        }
         /* Not Using HA */
         else {
             c->s[0].ha_status = 1;
             c->s[1].ha_status = 1;
         }
-            
+        
         /* Check GW, Opponent(dup) */
         for (int i = 0; i < c->o.layer_count; i++){
             if(ping_main(c->o.l[i].gateway, c->o.l[i].count)){
@@ -132,7 +148,7 @@ void mode_slave(context* c){
                 }
             }
         }
-
+        check_alive = 0;
         sleep(1);
     }
 

@@ -1,12 +1,14 @@
 #include "httpserver.h"
+#include "logger.h"
 #include "syshead.h"
-
+#include "basic.h"
 
 int list_s;                   // listening socket
+int check_alive;
 
 typedef struct {
    int returncode;
-   char filename[4096];
+   char filename[128];
 } httpRequest;
 
 
@@ -14,9 +16,10 @@ char *header200 = "HTTP/1.0 200 OK\nServer: Duplexer\nContent-Type: application/
 char *header400 = "HTTP/1.0 400 Bad Request\nServer: Duplexer\nContent-Type: application/json\nContent-Length: %d\n\n";
 char *header404 = "HTTP/1.0 404 Not Found\nServer: Duplexer\nContent-Type: application/json\nContent-Length: %d\n\n";
 
-char *getMessage(int fd, char* block) {
+void getMessage(int fd, char* block) {
     FILE *sstream;
     char tmp[128] = {0,};
+    CLEAR(*block);
     
     if( (sstream = fdopen(fd, "r")) == NULL) {
         fprintf(stderr, "Error opening file descriptor in getMessage()\n");
@@ -32,8 +35,6 @@ char *getMessage(int fd, char* block) {
         }
         strcat(block, tmp);
     }
-
-    return block;
 }
 
 int sendMessage(int fd, char *msg) {
@@ -48,6 +49,7 @@ httpRequest parseRequest(char *msg, int* pilot){
 
     httpRequest ret;
     char filename[128] = {0,};
+    
     getFileName(msg, filename);
 
     char *badstring = "..";
@@ -58,17 +60,26 @@ httpRequest parseRequest(char *msg, int* pilot){
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"400");
     } 
+    else if(strcmp(filename, "/duplexer/alive") == 0) {
+        logger(LOG_DEBUG,"%d",check_alive);
+        check_alive=1;
+        ret.returncode = 200;
+        memset(ret.filename , 0, 128);
+        strcpy(ret.filename,"I'm Alive");
+    }
     else if(strcmp(filename, "/duplexer/myplane") == 0) {
         *pilot = 1;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"Your Plane");
+        logger(LOG_DEBUG,"%d",ret.filename);
     }
     else if(strcmp(filename, "/duplexer/yourplane") == 0) {
-        *pilot = 0;
+        *pilot = 2;
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"My Plane");
+        logger(LOG_DEBUG,"%d",ret.filename);
     }
     else {
         ret.returncode = 404;
@@ -148,7 +159,7 @@ int http_server(int port, int* pilot) {
     int headersize;
     int pagesize;
     httpRequest details;
-    char * header;
+
     while(1)
     {
         conn_s = accept(list_s, (struct sockaddr *)&servaddr, &addr_size);
@@ -156,8 +167,8 @@ int http_server(int port, int* pilot) {
             fprintf(stderr,"Error accepting connection \n");
             return 1;
         }
-        header = getMessage(conn_s, block);
-        details = parseRequest(header, pilot);
+        getMessage(conn_s, block);
+        details = parseRequest(block, pilot);
         
         headersize = printHeader(conn_s, details.returncode, strlen(details.filename));
         pagesize = printFile(conn_s, details.filename);
