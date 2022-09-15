@@ -134,7 +134,7 @@ void mode_slave(context* c){
                 }
                 /* GW, DUP Success */
                 else if (c->s[i].gw_status == 0 && c->s[i].dup_status == 0) {
-                    /* VIP up */
+                    /* VIP Down */
                     logger(LOG_DEBUG, "GW, DUP Success");
                 }
                 else {
