@@ -25,7 +25,7 @@
 //   성공               성공            싪패      VIP업
 
 void mode_master(context* c){
-    int alive_count = 0;
+    int alive_count = 0, mode_flag = 0;
     int vip_status[2] = {0,}; // 1: up, 0: down
 
     logger(LOG_INFO, "Entering Master Mode");
@@ -44,15 +44,20 @@ void mode_master(context* c){
                 if(alive_count < 3){
                     logger(LOG_DEBUG,"[ MASTER ]: is Alive?");
                     if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_ALIVE)){
-                        logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, waiting 3s.");
+                        logger(LOG_DEBUG, "Cannot Connect Opponent's Duplexer, waiting 3s.");
                         sleep(3);
                         alive_count++;
                         continue;
                     }else{
+                        if(mode_flag == 0){
+                            logger(LOG_INFO, "Slave Connected, Change Direct ON");
+                            mode_flag = 1;
+                        }
                         alive_count = 0;
                     }
                 }else if(alive_count == 3){
-                    logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, Change Direct off.");
+                    mode_flag = 0;
+                    logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, Change Direct OFF.");
                     alive_count++;
                     c->s[0].ha_status = 1;
                     c->s[1].ha_status = 1;
@@ -195,6 +200,7 @@ void mode_master(context* c){
                             if(down_vip(c->o.l[i].interface)){
                                 logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                             }else{
+                                logger(LOG_INFO,"Success to down interface");
                                 vip_status[i] = 0;
                             }
                         }
@@ -212,7 +218,7 @@ void mode_master(context* c){
                             }
                             usleep(500);
                             if(install_netmask(c->o.l[i].interface, c->o.l[i].netmask)){
-                                logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
+                                logger(LOG_INFO,"Failed to install netmask %s", c->o.l[i].netmask);
                             }else{
                                 vip_status[i] = 1;
                                 logger(LOG_INFO, "Slave is Dead, Check network");

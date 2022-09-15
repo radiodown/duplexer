@@ -75,7 +75,6 @@ httpRequest parseRequest(char *msg, int* pilot){
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"Your Plane");
-        logger(LOG_DEBUG,"%d",ret.filename);
     }
     else if(strcmp(filename, "/duplexer/yourplane") == 0) {
         logger(LOG_DEBUG,"[ Master ]: Your Plane");
@@ -84,7 +83,6 @@ httpRequest parseRequest(char *msg, int* pilot){
         ret.returncode = 200;
         memset(ret.filename , 0, 128);
         strcpy(ret.filename,"My Plane");
-        logger(LOG_DEBUG,"%d",ret.filename);
     }
     else {
         ret.returncode = 404;

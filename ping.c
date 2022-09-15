@@ -168,7 +168,7 @@ int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, ch
         if ( sendto(ping_sockfd, &pckt, sizeof(pckt), 0,
            (struct sockaddr*) ping_addr,
             sizeof(*ping_addr)) <= 0){
-            logger(LOG_INFO,"Packet Sending Failed!");
+            logger(LOG_DEBUG,"Packet Sending Failed!");
             flag=0;
         }
  
@@ -206,7 +206,7 @@ int send_ping(int ping_sockfd, struct sockaddr_in *ping_addr, char *ping_dom, ch
     if(msg_received_count>0){
         return 0;
     }
-    logger(LOG_INFO,"[%s] %d packets sent, %d packets received, %f percent packet loss. Total time: %Lf ms.",ping_ip, msg_count, msg_received_count, ((msg_count - msg_received_count)/msg_count) * 100.0, total_msec);
+    logger(LOG_DEBUG,"[%s] %d packets sent, %d packets received, %f percent packet loss. Total time: %Lf ms.",ping_ip, msg_count, msg_received_count, ((msg_count - msg_received_count)/msg_count) * 100.0, total_msec);
     return 1;
 }
 
@@ -219,7 +219,7 @@ int ping_main(char *address, int count) {
  
     ip_addr = dns_lookup(address, &addr_con);
     if(ip_addr==NULL) {
-        logger(LOG_INFO,"DNS lookup failed! Could not resolve hostname");
+        logger(LOG_DEBUG,"DNS lookup failed! Could not resolve hostname");
         return 1;
     }
  
@@ -229,7 +229,7 @@ int ping_main(char *address, int count) {
 
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if(sockfd<0){
-        logger(LOG_INFO,"Socket file descriptor not received");
+        logger(LOG_DEBUG,"Socket file descriptor not received");
         return 1;
     }
 

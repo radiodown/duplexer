@@ -64,7 +64,8 @@ int parse_argv(struct options* o, int argc, char* argv[]){
     /* config filename specified only */
     if (argc == 2 && strncmp(argv[1], "--", 2)) {
         o->config_file = malloc(strlen(argv[1]) + 1);
-        strncpy(o->config_file,argv[1],strlen(argv[1]));
+        CLEAR(*o->config_file);
+        strcpy(o->config_file,argv[1]);
         ret = 0;
         logger(LOG_DEBUG,"Config file : %s",o->config_file);
     } else {
@@ -223,7 +224,7 @@ int read_config_file(struct options* o){
 
     FILE* fp = fopen(o->config_file, "r");
     if(fp == NULL){
-        logger(LOG_INFO,"Error Opening config file");
+        logger(LOG_INFO,"Error Opening config file [%s]", o->config_file);
         return 1;
     }
 

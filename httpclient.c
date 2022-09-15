@@ -3,6 +3,12 @@
 #include "httpclient.h"
 #include "basic.h"
 
+#define DUPLEXER_ALIVE "/duplexer/alive"
+#define DUPLEXER_MYPLANE "/duplexer/myplane"
+#define DUPLEXER_YOURPLANE "/duplexer/yourplane"
+
+
+
 int send_http(int port, char* host, char* url) {
     
     char *message_fmt = "GET %s HTTP/1.0\r\n\r\n";
@@ -155,7 +161,7 @@ int send_http(int port, char* host, char* url) {
 
     while (ptr != NULL){
         if(i == 5){
-            logger(LOG_DEBUG, "  [ SLAVE  ]: %s", ptr);
+            logger(LOG_DEBUG, " [ Slave  ]: %s", ptr);
             break;
         }
         ptr = strtok(NULL, "\r\n");

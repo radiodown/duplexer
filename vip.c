@@ -125,16 +125,17 @@ int down_vip(char* interface){
 	}
 
 	/* Setting ifreq structure */
-	memset(&ifr, 0, sizeof ifr);
+	memset(&ifr, 0, sizeof(struct ifreq));
 	strncpy(ifr.ifr_name, iface, IFNAMSIZ-1);
 	ifr.ifr_flags &= IFF_UP;
 
 	/* Interface down */
 	ret = ioctl(fd, SIOCSIFFLAGS, &ifr);
-	if (ret < 0) {
-		close(fd);
-    	return 1;
-  	}
+	// if (ret < 0) {
+	// 	logger(LOG_INFO, "IOCTL");
+	// 	close(fd);
+    // 	return 1;
+  	// }
 
 	close(fd);
     logger(LOG_INFO, "Interface %s is down", interface);
