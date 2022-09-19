@@ -44,20 +44,22 @@ void mode_master(context* c){
                 if(alive_count < 3){
                     logger(LOG_DEBUG,"[ MASTER ]: is Alive?");
                     if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_ALIVE)){
-                        logger(LOG_DEBUG, "Cannot Connect Opponent's Duplexer, waiting 3s.");
+                        logger(LOG_DEBUG, "Cannot Connect Slave, waiting 3s.");
                         sleep(3);
                         alive_count++;
                         continue;
                     }else{
                         if(mode_flag == 0){
-                            logger(LOG_INFO, "Slave Connected, Change Direct ON");
-                            mode_flag = 1;
+                            logger(LOG_INFO, "Slave Connected, Change Direct on.");
                         }
+                        mode_flag = 1;
                         alive_count = 0;
                     }
                 }else if(alive_count == 3){
+                    if(mode_flag == 1){
+                        logger(LOG_INFO, "Slave Disconnected, Change Direct off.");
+                    }
                     mode_flag = 0;
-                    logger(LOG_INFO, "Cannot Connect Opponent's Duplexer, Change Direct OFF.");
                     alive_count++;
                     c->s[0].ha_status = 1;
                     c->s[1].ha_status = 1;
@@ -232,6 +234,6 @@ void mode_master(context* c){
             }
         }
         alive_count = 0;
-        sleep(1);
+        sleep(2);
     }
 }
