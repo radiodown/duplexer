@@ -35,7 +35,7 @@ void mode_master(context* c){
         /* Using HA */
         if(c->o.direct == 1){
             /* 0: success 1: fail */
-            if(ping_main(c->o.direct_ip, 3)){
+            if(ping_main(c->o.direct_ip, 3)!=0){
                 c->s[0].ha_status = 1;
                 c->s[1].ha_status = 1;
             }else {
@@ -77,13 +77,13 @@ void mode_master(context* c){
             
         /* Check GW, Opponent(dup) */
         for (int i = 0; i < c->o.layer_count; i++){
-            if(ping_main(c->o.l[i].gateway, c->o.l[i].count)){
+            if(ping_main(c->o.l[i].gateway, c->o.l[i].count)!=0){
                 c->s[i].gw_status = 1;
             }else{
                 c->s[i].gw_status = 0;
             }
             
-            if(ping_main(c->o.l[i].dup, c->o.l[i].count)){
+            if(ping_main(c->o.l[i].dup, c->o.l[i].count)!=0){
                 c->s[i].dup_status = 1;
             }else{
                 c->s[i].dup_status = 0;
