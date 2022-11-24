@@ -105,13 +105,13 @@ void mode_master(context* c){
                 if(c->s[i].gw_status && c->s[i].dup_status ){
                     logger(LOG_DEBUG, "GW, DUP FAILED");
                     /* VIP down */
-                    if(vip_status[i]){
+                    // if(vip_status[i]){
                         if(down_vip(c->o.l[i].interface)){
                             logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                         }else{
                             vip_status[i] = 0;
                         }
-                    }
+                    // }
                 }
                 /* GW, DUP Success */
                 else if (c->s[i].gw_status == 0 && c->s[i].dup_status == 0) {
@@ -135,13 +135,13 @@ void mode_master(context* c){
                     if (c->s[i].gw_status) {
                         /* VIP down */
                         logger(LOG_DEBUG, "GW Failed, DUP Success");
-                        if(vip_status[i]){
+                        // if(vip_status[i]){
                             if(down_vip(c->o.l[i].interface)){
                                 logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                             }else{
                                 vip_status[i] = 0;
                             }
-                        }
+                        //}
                     }
                     /* GW Success, Dup Fail */
                     else{
@@ -169,13 +169,13 @@ void mode_master(context* c){
                 if(c->s[i].gw_status && c->s[i].dup_status){
                     /* VIP down */
                     logger(LOG_DEBUG, "GW, DUP FAILED");
-                    if(vip_status[i]){
+                    // if(vip_status[i]){
                         if(down_vip(c->o.l[i].interface)){
                             logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                         }else{
                             vip_status[i] = 0;
                         }
-                    }
+                    // }
                     if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_YOURPLANE)){
                         logger(LOG_INFO,"Failed to Send HA status");
                     }
@@ -204,14 +204,14 @@ void mode_master(context* c){
                     if (c->s[i].gw_status) {
                         /* VIP down */
                         logger(LOG_DEBUG, "GW Failed, DUP Success");
-                        if(vip_status[i]){
+                        // if(vip_status[i]){
                             if(down_vip(c->o.l[i].interface)){
                                 logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                             }else{
                                 logger(LOG_INFO,"Success to down interface");
                                 vip_status[i] = 0;
                             }
-                        }
+                        // }
                         if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_YOURPLANE)){
                             logger(LOG_INFO,"Failed to Send HA status");
                         }
