@@ -26,13 +26,14 @@
 
 void mode_master(context* c){
 
+    int vip_status[2] = {0,}; // 1: up, 0: down
+
     for (int i = 0; i < c->o.layer_count; i++){
         down_vip(c->o.l[i].interface);
-        logger(LOG_INFO, "Initializing VIP Interface %s down", c->o.l[i].interface);
+        logger(LOG_INFO, "Interface %s down", c->o.l[i].interface);
     }
 
     int alive_count = 0, mode_flag = 0;
-    int vip_status[2] = {0,}; // 1: up, 0: down
 
     logger(LOG_INFO, "Entering Master Mode");
 
@@ -105,13 +106,14 @@ void mode_master(context* c){
                 if(c->s[i].gw_status && c->s[i].dup_status ){
                     logger(LOG_DEBUG, "GW, DUP FAILED");
                     /* VIP down */
-                    // if(vip_status[i]){
+                    if(vip_status[i]){
+                        printf("%s", "111111111111111111111111111111111111111\n");
                         if(down_vip(c->o.l[i].interface)){
                             logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                         }else{
                             vip_status[i] = 0;
                         }
-                    // }
+                    }
                 }
                 /* GW, DUP Success */
                 else if (c->s[i].gw_status == 0 && c->s[i].dup_status == 0) {
@@ -135,13 +137,14 @@ void mode_master(context* c){
                     if (c->s[i].gw_status) {
                         /* VIP down */
                         logger(LOG_DEBUG, "GW Failed, DUP Success");
-                        // if(vip_status[i]){
+                        if(vip_status[i]){
+                            printf("%s", "222222222222222222222222222222222222222\n");
                             if(down_vip(c->o.l[i].interface)){
                                 logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                             }else{
                                 vip_status[i] = 0;
                             }
-                        //}
+                        }
                     }
                     /* GW Success, Dup Fail */
                     else{
@@ -169,13 +172,14 @@ void mode_master(context* c){
                 if(c->s[i].gw_status && c->s[i].dup_status){
                     /* VIP down */
                     logger(LOG_DEBUG, "GW, DUP FAILED");
-                    // if(vip_status[i]){
+                    if(vip_status[i]){
+                        printf("%s", "333333333333333333333333333333333333333\n");
                         if(down_vip(c->o.l[i].interface)){
                             logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                         }else{
                             vip_status[i] = 0;
                         }
-                    // }
+                    }
                     if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_YOURPLANE)){
                         logger(LOG_INFO,"Failed to Send HA status");
                     }
@@ -204,14 +208,15 @@ void mode_master(context* c){
                     if (c->s[i].gw_status) {
                         /* VIP down */
                         logger(LOG_DEBUG, "GW Failed, DUP Success");
-                        // if(vip_status[i]){
+                        if(vip_status[i]){
+                            printf("%s", "444444444444444444444444444444444444444\n");
                             if(down_vip(c->o.l[i].interface)){
                                 logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
                             }else{
                                 logger(LOG_INFO,"Success to down interface");
                                 vip_status[i] = 0;
                             }
-                        // }
+                        }
                         if(send_http(c->o.direct_port, c->o.direct_ip, DUPLEXER_YOURPLANE)){
                             logger(LOG_INFO,"Failed to Send HA status");
                         }
