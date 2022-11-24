@@ -115,23 +115,35 @@ void mode_slave(context* c){
                     logger(LOG_DEBUG, "GW, DUP FAILED");
                     /* VIP down */
                     if(vip_status[i]){
-                        if(down_vip(c->o.l[i].interface)){
-                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
+                        if(down_vip(c->o.l[0].interface)){
+                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[0].interface);
                         }else{
-                            vip_status[i] = 0;
+                            vip_status[0] = 0;
+                        }
+
+                        if(down_vip(c->o.l[1].interface)){
+                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[1].interface);
+                        }else{
+                            vip_status[1] = 0;
                         }
                     }
 
                 }
                 /* GW, DUP Success */
-                else if (c->s[i].gw_status == 0 && c->s[i].dup_status == 0) {
+                else if (c->s[0].gw_status == 0 && c->s[0].dup_status == 0 && c->s[1].gw_status == 0 && c->s[1].dup_status == 0) {
                     /* VIP down */
                     logger(LOG_DEBUG, "GW, DUP Success");
                     if(vip_status[i]){
-                        if(down_vip(c->o.l[i].interface)){
-                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
+                        if(down_vip(c->o.l[0].interface)){
+                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[0].interface);
                         }else{
-                            vip_status[i] = 0;
+                            vip_status[0] = 0;
+                        }
+
+                        if(down_vip(c->o.l[1].interface)){
+                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[1].interface);
+                        }else{
+                            vip_status[1] = 0;
                         }
                     }
                 }
@@ -142,11 +154,17 @@ void mode_slave(context* c){
                         /* VIP down */
                         logger(LOG_DEBUG, "GW Failed, DUP Success");
                         if(vip_status[i]){
-                            if(down_vip(c->o.l[i].interface)){
-                                logger(LOG_INFO,"Failed to down interface %s", c->o.l[i].interface);
-                            }else{
-                                vip_status[i] = 0;
-                            }
+                            if(down_vip(c->o.l[0].interface)){
+                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[0].interface);
+                        }else{
+                            vip_status[0] = 0;
+                        }
+
+                        if(down_vip(c->o.l[1].interface)){
+                            logger(LOG_INFO,"Failed to down interface %s", c->o.l[1].interface);
+                        }else{
+                            vip_status[1] = 0;
+                        }
                         }
                     }
                     /* GW Success, Dup Fail */
@@ -154,15 +172,26 @@ void mode_slave(context* c){
                         logger(LOG_DEBUG, "GW Success, DUP FAILED");
                         /* VIP up, check network log*/
                         if(vip_status[i] == 0){
-                            if(install_vip(c->o.l[i].interface, c->o.l[i].vip)){
-                                logger(LOG_INFO,"Failed to install vip %s", c->o.l[i].interface);
+                            if(install_vip(c->o.l[0].interface, c->o.l[0].vip)){
+                                logger(LOG_INFO,"Failed to install vip %s", c->o.l[0].interface);
                             }
                             usleep(500);
-                            if(install_netmask(c->o.l[i].interface, c->o.l[i].netmask)){
-                                logger(LOG_INFO,"Failed to install netmask %s", c->o.l[i].netmask);
+                            if(install_netmask(c->o.l[0].interface, c->o.l[0].netmask)){
+                                logger(LOG_INFO,"Failed to install netmask %s", c->o.l[0].netmask);
                             }else{
                                 logger(LOG_INFO, "Slave is Dead, Check network");
-                                vip_status[i] = 1;
+                                vip_status[0] = 1;
+                            }
+                            usleep(500);
+                            if(install_vip(c->o.l[1].interface, c->o.l[1].vip)){
+                                logger(LOG_INFO,"Failed to install vip %s", c->o.l[1].interface);
+                            }
+                            usleep(500);
+                            if(install_netmask(c->o.l[1].interface, c->o.l[1].netmask)){
+                                logger(LOG_INFO,"Failed to install netmask %s", c->o.l[1].netmask);
+                            }else{
+                                logger(LOG_INFO, "Slave is Dead, Check network");
+                                vip_status[1] = 1;
                             }
                         }
                     }
