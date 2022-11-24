@@ -26,6 +26,11 @@ void* t_function(void* data) {
 void mode_slave(context* c){
     logger(LOG_INFO, "Entering Slave Mode");
 
+    for (int i = 0; i < c->o.layer_count; i++){
+        down_vip(c->o.l[i].interface);
+        logger(LOG_INFO, "Initializing VIP Interface %s down", c->o.l[i].interface);
+    }
+
     pthread_t pthread;
     int thr_id, i, result, mode_flag = 0;
     int vip_status[2] = {0,}; // 1: up, 0: down

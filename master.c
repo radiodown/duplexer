@@ -25,6 +25,12 @@
 //   성공               성공            싪패      VIP업
 
 void mode_master(context* c){
+
+    for (int i = 0; i < c->o.layer_count; i++){
+        down_vip(c->o.l[i].interface);
+        logger(LOG_INFO, "Initializing VIP Interface %s down", c->o.l[i].interface);
+    }
+
     int alive_count = 0, mode_flag = 0;
     int vip_status[2] = {0,}; // 1: up, 0: down
 
